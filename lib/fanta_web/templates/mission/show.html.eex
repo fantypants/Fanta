@@ -12,6 +12,6 @@
     <%= @mission.user_id %>
   </li>
 </ul>
-
+<span><%= link "New Question", to: user_mission_mission_path(@conn, :new_question, @user_id, @mission) %></span>
 <span><%= link "Edit", to: user_mission_path(@conn, :edit, @user_id, @mission) %></span>
 <span><%= link "Back", to: user_mission_path(@conn, :index, @user_id) %></span>

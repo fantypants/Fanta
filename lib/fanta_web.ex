@@ -40,6 +40,7 @@ defmodule FantaWeb do
       import FantaWeb.Router.Helpers
       import FantaWeb.ErrorHelpers
       import FantaWeb.Gettext
+      import FantaWeb.InputHelpers
     end
   end
 

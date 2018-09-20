@@ -11,7 +11,28 @@
     <strong>User:</strong>
     <%= @mission.user_id %>
   </li>
+
+<table class="table">
+  <thead>
+    <th> Title </th>
+    <th> Type </th>
+    <th> Is Question Answered? </th>
+  </thead>
+  <tbody>
+    <%= for q <- @mission.questions do %>
+    <tr>
+      <td><%= q.title %></td>
+      <td><%= q.type %></td>
+      <td><%= FantaWeb.MissionController.check_answer(@user_id, q.id) %></td>
+      <td><span><%= link "Show Question", to: user_mission_mission_path(@conn, :show_question, @user_id, @mission, q.id) %></span></td>
+      <td><span><%= link "Show Answer", to: user_mission_mission_path(@conn, :show_answer, @user_id, @mission, q.id) %></span></td>
+    </tr>
+  <% end %>
+</tbody>
+</table>
 </ul>
 <span><%= link "New Question", to: user_mission_mission_path(@conn, :new_question, @user_id, @mission) %></span>
+<span><%= link "Search", to: user_mission_mission_path(@conn, :search, @user_id, @mission) %></span>
 <span><%= link "Edit", to: user_mission_path(@conn, :edit, @user_id, @mission) %></span>
 <span><%= link "Back", to: user_mission_path(@conn, :index, @user_id) %></span>
+<span><%= link "Answer Mission", to: user_mission_mission_path(@conn, :answer_mission, @user_id, @mission) %></span>

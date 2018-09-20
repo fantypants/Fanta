@@ -50,6 +50,17 @@ defmodule FantaWeb.MissionController do
     end
   end
 
+  def check_answer(user_id, question_id) do
+    answers_query = from a in Answer, where: a.user_id == ^user_id and a.question_id == ^question_id
+    answers = Repo.all(answers_query) |> Enum.count |> IO.inspect
+    case answers do
+      0 ->
+        "Not Answered"
+      _->
+        "Answered"
+    end
+  end
+
   def createquestion(%Plug.Conn{assigns: %{current_user: user}} = conn, %{"question" => question, "mission_id" => mission_id}) do
     options = question["options"] |> IO.inspect
     title = question["title"] |> IO.inspect

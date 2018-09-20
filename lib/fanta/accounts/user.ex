@@ -8,6 +8,8 @@ defmodule Fanta.Accounts.User do
     field :password, :string, virtual: true
     field :password_hash, :string
     field :sessions, {:map, :integer}, default: %{}
+    has_many :missions, FantaWeb.Models.Mission
+    has_many :answers, FantaWeb.Models.Answer
 
     timestamps()
   end
@@ -15,6 +17,8 @@ defmodule Fanta.Accounts.User do
   def changeset(%User{} = user, attrs) do
     user
     |> cast(attrs, [:email])
+    |> cast_assoc(:missions)
+    |> cast_assoc(:answers)
     |> validate_required([:email])
     |> unique_email
   end
@@ -22,6 +26,8 @@ defmodule Fanta.Accounts.User do
   def create_changeset(%User{} = user, attrs) do
     user
     |> cast(attrs, [:email, :password])
+    |> cast_assoc(:missions)
+    |> cast_assoc(:answers)
     |> validate_required([:email, :password])
     |> unique_email
     |> validate_password(:password)

@@ -19,6 +19,9 @@ defmodule FantaWeb.Router do
       resources "/missions", MissionController do
         get "new_question", MissionController, :new_question
         post "createquestion", MissionController, :createquestion
+        get ":question_id/show_question", MissionController, :show_question
+        post ":question_id/answer_question", MissionController, :answer_question
+        get ":question_id/show_answer", MissionController, :show_answer
       end
     end
     resources "/sessions", SessionController, only: [:new, :create, :delete]

@@ -112,13 +112,10 @@ defmodule FantaWeb.MissionController do
   end
 
   def answer_all(%Plug.Conn{assigns: %{current_user: user}} = conn, params) do
-    IO.inspect params
-
+    mission_id = params["mission_id"]
     answers = Map.keys(params)
       |> Enum.reject(fn(a) -> String.starts_with?(a, "b") !== true end)
       |> Enum.map(fn(a) -> get_atom_and_value(a, params, params["mission_id"], params["user_id"]) end)
-      |> IO.inspect
-    mission_id = 1
       Enum.map(answers, fn(a) -> answer_question_single(a) end)
     conn |> redirect(to: user_mission_path(conn, :show, user.id, mission_id))
   end
@@ -145,18 +142,14 @@ defmodule FantaWeb.MissionController do
     render(conn, "show.html", user_id: user.id, mission: mission)
   end
 
-  defp get_questions_from_mission(mission_id, query) do
+  defp get_questions_from_mission(mission_id, search) do
     query = from q in Question, where: q.mission_id == ^mission_id, select: q.id
     question_ids = Repo.all(query)
-    |> Enum.map(fn(ans) -> Repo.all(from a in Answer, where: a.question_id == ^ans, select: a.body) end)
+    |> Enum.map(fn(ans) -> Repo.all(from a in Answer, where: a.question_id == ^ans, select: %{question_id: a.question_id, body: a.body, user_id: a.user_id}) end)
     |> List.flatten
-    |> Enum.reject(fn(a) -> a !== query end)
+    |> IO.inspect
+    |> Enum.reject(fn(a) -> Enum.any?(a.body, fn(b) -> b == search end) !== true end)
   end
-
-  #def search(%Plug.Conn{assigns: %{current_user: user}} = conn, %{"mission_id" => mission_id, "user_id" => user_id}) do
-  #  IO.inspect conn
-  #  render(conn, "search_answers.html", user_id: user.id, mission_id: mission_id)
-  #end%{"mission_id" => mission_id, "query" => query, "user_id" => user_id} \\ %{"mission_id" => mission_id, "user_id" => user_id}
 
   def search(%Plug.Conn{assigns: %{current_user: user}} = conn, params) do
     query = params["query"]
@@ -166,12 +159,9 @@ defmodule FantaWeb.MissionController do
       "" ->
         results = []
       _->
-        get_questions_from_mission(mission_id, query)
-        #result_query = from a in Answer, where: a.mission_id
-        #results = Repo.all(result_query) |> IO.inspect
-        results = []
+        results = get_questions_from_mission(mission_id, query)
       end
-    render(conn, "search_answers.html", user_id: user.id, mission_id: mission_id)
+    render(conn, "search_answers.html", user_id: user.id, mission_id: mission_id, results: results)
   end
 
   def edit(%Plug.Conn{assigns: %{current_user: user}} = conn, %{"id" => id}) do

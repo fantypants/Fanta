@@ -1,7 +1,15 @@
 <h2>Show mission</h2>
 
 <ul>
-
+  <li>
+  <span><%= link "New Question", to: user_mission_mission_path(@conn, :new_question, @user_id, @mission) %></span>
+</li>
+<li>
+<span><%= link "Answer Mission", to: user_mission_mission_path(@conn, :answer_mission, @user_id, @mission) %></span>
+  </li>
+  <li>
+    <span><%= link "Search", to: user_mission_mission_path(@conn, :search, @user_id, @mission) %></span>
+  </li>
   <li>
     <strong>Name:</strong>
     <%= @mission.name %>
@@ -24,15 +32,12 @@
       <td><%= q.title %></td>
       <td><%= q.type %></td>
       <td><%= FantaWeb.MissionController.check_answer(@user_id, q.id) %></td>
-      <td><span><%= link "Show Question", to: user_mission_mission_path(@conn, :show_question, @user_id, @mission, q.id) %></span></td>
+      <td><span><%= link "Answer Question", to: user_mission_mission_path(@conn, :show_question, @user_id, @mission, q.id) %></span></td>
       <td><span><%= link "Show Answer", to: user_mission_mission_path(@conn, :show_answer, @user_id, @mission, q.id) %></span></td>
     </tr>
   <% end %>
 </tbody>
 </table>
 </ul>
-<span><%= link "New Question", to: user_mission_mission_path(@conn, :new_question, @user_id, @mission) %></span>
-<span><%= link "Search", to: user_mission_mission_path(@conn, :search, @user_id, @mission) %></span>
 <span><%= link "Edit", to: user_mission_path(@conn, :edit, @user_id, @mission) %></span>
 <span><%= link "Back", to: user_mission_path(@conn, :index, @user_id) %></span>
-<span><%= link "Answer Mission", to: user_mission_mission_path(@conn, :answer_mission, @user_id, @mission) %></span>

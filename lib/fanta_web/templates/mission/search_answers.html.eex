@@ -4,3 +4,21 @@
   <%= text_input f, :query %>
   <%= submit "Search" %>
 <% end %>
+
+
+<table class="table">
+  <thead>
+    <th> Question ID </th>
+    <th> Answer </th>
+    <th> User That Answered </th>
+  </thead>
+  <tbody>
+    <%= for result <- @results do %>
+    <tr>
+      <td><%= result.question_id %></td>
+      <td><%= result.body %></td>
+      <td><%= result.user_id %></td>
+    </tr>
+  <% end %>
+</tbody>
+</table>

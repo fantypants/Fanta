@@ -21,6 +21,35 @@ defmodule FantaWeb.MissionController do
     render(conn, "new_question.html", changeset: changeset, mission: mission_id)
   end
 
+  def show_question(%Plug.Conn{assigns: %{current_user: user}} = conn, %{"question_id" => question_id, "mission_id" => mission_id}) do
+    question = Repo.get!(Question, question_id)
+    changeset = Answer.changeset(%Answer{})
+    render(conn, "show_question.html", user_id: user.id, question: question, changeset: changeset, mission: mission_id)
+  end
+
+  def show_answer(%Plug.Conn{assigns: %{current_user: user}} = conn, %{"question_id" => question_id, "mission_id" => mission_id}) do
+    answers_query = from a in Answer, where: a.user_id == ^user.id
+    question = Repo.get!(Question, question_id) |> Repo.preload(answers: answers_query)
+    render(conn, "show_answer.html", user_id: user.id, question: question, mission: mission_id)
+  end
+
+  def answer_question(%Plug.Conn{assigns: %{current_user: user}} = conn, %{"answer" => answer, "mission_id" => mission_id, "question_id" => question_id}) do
+    body = [answer["body"]] |> Enum.map(&(&1)) |> List.flatten |> IO.inspect
+    params = %{"body" => body, "question_id" => question_id, "user_id" => user.id}
+    changeset = Answer.changeset(%Answer{}, params)
+    case Repo.insert(changeset) do
+      {:ok, answer} ->
+        conn
+        |> put_flash(:info, "Answer created successfully.")
+        |> redirect(to: user_mission_mission_path(conn, :show_question, user.id, mission_id, question_id))
+      {:error, changeset} ->
+        IO.inspect changeset
+        conn
+        |> put_flash(:info, "Answer Didnt work.")
+        |> redirect(to: user_mission_mission_path(conn, :show_question, user.id, mission_id, question_id))
+    end
+  end
+
   def createquestion(%Plug.Conn{assigns: %{current_user: user}} = conn, %{"question" => question, "mission_id" => mission_id}) do
     options = question["options"] |> IO.inspect
     title = question["title"] |> IO.inspect

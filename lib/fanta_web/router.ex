@@ -15,6 +15,10 @@ defmodule FantaWeb.Router do
 
     get "/", PageController, :index
     resources "/users", UserController
+    resources "/users", UserController do
+      resources "/missions", MissionController do
+      end
+    end
     resources "/sessions", SessionController, only: [:new, :create, :delete]
   end
 

@@ -1,0 +1,6 @@
+<h2>New mission</h2>
+
+<%= render "form.html", changeset: @changeset,
+                        action: user_mission_path(@conn, :create, @user_id) %>
+
+<span><%= link "Back", to: user_mission_path(@conn, :index, @user_id) %></span>

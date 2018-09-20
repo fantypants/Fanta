@@ -1,0 +1,17 @@
+<h2>Show mission</h2>
+
+<ul>
+
+  <li>
+    <strong>Name:</strong>
+    <%= @mission.name %>
+  </li>
+
+  <li>
+    <strong>User:</strong>
+    <%= @mission.user_id %>
+  </li>
+</ul>
+
+<span><%= link "Edit", to: user_mission_path(@conn, :edit, @user_id, @mission) %></span>
+<span><%= link "Back", to: user_mission_path(@conn, :index, @user_id) %></span>

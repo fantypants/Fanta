@@ -56,20 +56,13 @@ def array_input(form, field) do
     link("Add", to: "#",data: data, class: "add-form-field", id: "add_button")
   end
 
-  def dynamic_element(form, field, type) do
-    case type do
-      "Single" ->
-        input(form, field, type)
-    end
-  end
-
 
   def input(form, field, options \\ []) do
     type = options[:using] || Phoenix.HTML.Form.input_type(form, field)
-    label_value = options[:label] || humanize(field)
-    values = options[:values] |> Enum.map(fn(a) -> ["#{a}": a] end) |> List.flatten |> IO.inspect
+    label_value = "Answer: "#options[:label] || humanize(field)
+    values = options[:values] |> Enum.map(fn(a) -> ["#{a}": a] end) |> List.flatten
     wrapper_options = [class: "field #{state_class(form, field)}"]
-    input_options = values # To pass custom options to input
+    input_options = values
 
     validations = Phoenix.HTML.Form.input_validations(form, field)
     input_options = Keyword.merge(validations, input_options)

@@ -30,7 +30,7 @@
     <td><%= q.title %></td>
     <td><%= q.type %></td>
     <%= if q.type == "Single" do %>
-    <td><%= input f, :"body_#{q.id}", using: :select, values: Enum.map(q.options,&(&1)) %></td>
+    <td><%= input f, :"body_#{q.id}", using: :select, values: Enum.map(q.options,&(&1)), label: "TEST" %></td>
     <% end %>
     <%= if q.type == "Multiple Choice" do %>
     <td><%= input f, :"body_#{q.id}", using: :multiple_select, values: Enum.map(q.options,&(&1)) %></td>

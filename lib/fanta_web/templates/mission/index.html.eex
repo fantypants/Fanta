@@ -16,9 +16,7 @@
       <td><%= mission.user_id %></td>
 
       <td class="text-right">
-        <span><%= link "Show", to: user_mission_path(@conn, :show, @user_id, mission), class: "btn btn-default btn-xs" %></span>
-        <span><%= link "Edit", to: user_mission_path(@conn, :edit, @user_id, mission), class: "btn btn-default btn-xs" %></span>
-        <span><%= link "Delete", to: user_mission_path(@conn, :delete, @user_id, mission), method: :delete, data: [confirm: "Are you sure?"], class: "btn btn-danger btn-xs" %></span>
+        <span><%= link "View Questionaire", to: user_mission_path(@conn, :show, @user_id, mission), class: "btn btn-default btn-xs" %></span>
       </td>
     </tr>
 <% end %>

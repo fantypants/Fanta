@@ -16,10 +16,31 @@ defmodule FantaWeb.MissionController do
     render(conn, "new.html", changeset: changeset, user_id: user.id)
   end
 
+  ############################################################
+  #Generates New Question
   def new_question(%Plug.Conn{assigns: %{current_user: user}} = conn, %{"mission_id" => mission_id}) do
     changeset = Question.changeset(%Question{})
     render(conn, "new_question.html", changeset: changeset, mission: mission_id)
   end
+
+  def createquestion(%Plug.Conn{assigns: %{current_user: user}} = conn, %{"question" => question, "mission_id" => mission_id}) do
+    options = question["options"]
+    title = question["title"]
+    type = question["type"]
+    params = %{"options" => options, "title" => title, "type" => type, "mission_id" => mission_id}
+    changeset = Question.changeset(%Question{}, params)
+    case Repo.insert(changeset) do
+      {:ok, question} ->
+        conn
+        |> put_flash(:info, "Question created successfully.")
+        |> redirect(to: user_mission_mission_path(conn, :new_question, user.id, mission_id))
+      {:error, changeset} ->
+        IO.inspect changeset
+        render(conn, "new_question.html", user_id: user.id, mission: mission_id, changeset: changeset)
+    end
+  end
+
+  ###########################################################
 
   def show_question(%Plug.Conn{assigns: %{current_user: user}} = conn, %{"question_id" => question_id, "mission_id" => mission_id}) do
     question = Repo.get!(Question, question_id)
@@ -47,26 +68,64 @@ defmodule FantaWeb.MissionController do
     render(conn, "show_answer.html", user_id: user.id, question: question, mission: mission_id)
   end
 
-  def answer_question(%Plug.Conn{assigns: %{current_user: user}} = conn, %{"answer" => answer, "mission_id" => mission_id, "question_id" => question_id}) do
-    body = [answer["body"]] |> Enum.map(&(&1)) |> List.flatten |> IO.inspect
-    params = %{"body" => body, "question_id" => question_id, "user_id" => user.id}
-    changeset = Answer.changeset(%Answer{}, params)
-    case Repo.insert(changeset) do
-      {:ok, answer} ->
-        conn
-        |> put_flash(:info, "Answer created successfully.")
-        |> redirect(to: user_mission_mission_path(conn, :show_question, user.id, mission_id, question_id))
-      {:error, changeset} ->
-        IO.inspect changeset
-        conn
-        |> put_flash(:info, "Answer Didnt work.")
-        |> redirect(to: user_mission_mission_path(conn, :show_question, user.id, mission_id, question_id))
+  ##########################################################
+  # Generates Answer to Question
+  # Single Answer
+    def answer_question(%Plug.Conn{assigns: %{current_user: user}} = conn, %{"answer" => answer, "mission_id" => mission_id, "question_id" => question_id}) do
+      body = [answer["body"]] |> Enum.map(&(&1)) |> List.flatten
+      params = %{"body" => body, "question_id" => question_id, "user_id" => user.id}
+      changeset = Answer.changeset(%Answer{}, params)
+      case Repo.insert(changeset) do
+        {:ok, answer} ->
+          conn
+          |> put_flash(:info, "Answer created successfully.")
+          |> redirect(to: user_mission_mission_path(conn, :show_question, user.id, mission_id, question_id))
+        {:error, changeset} ->
+          IO.inspect changeset
+          conn
+          |> put_flash(:info, "Answer Didnt work.")
+          |> redirect(to: user_mission_mission_path(conn, :show_question, user.id, mission_id, question_id))
+      end
     end
-  end
+
+    def answer_mission(%Plug.Conn{assigns: %{current_user: user}} = conn, %{"mission_id" => mission_id}) do
+      mission = Repo.get!(Mission, mission_id) |> Repo.preload(:questions)
+      render(conn, "answer_mission.html", user_id: user.id, mission_id: mission_id, mission: mission)
+    end
+
+    # Answers the entire Mission
+    def answer_all(%Plug.Conn{assigns: %{current_user: user}} = conn, params) do
+      mission_id = params["mission_id"]
+      answers = Map.keys(params)
+        |> Enum.reject(fn(a) -> String.starts_with?(a, "b") !== true end)
+        |> Enum.map(fn(a) -> get_atom_and_value(a, params, params["mission_id"], params["user_id"]) end)
+        Enum.map(answers, fn(a) -> answer_question_single(a) end)
+      conn |> redirect(to: user_mission_path(conn, :show, user.id, mission_id))
+    end
+
+    # get the correct question id and the response
+    defp get_atom_and_value(atom, list, mission_id, user_id) do
+      question_id = String.split(atom, "_") |> List.last
+        body = [list[atom]] |> List.flatten
+      %{"question_id" => question_id, "body" => body, "mission_id" => mission_id, "user_id" => user_id}
+    end
+
+    def answer_question_single(params) do
+      changeset = Answer.changeset(%Answer{}, params)
+      case Repo.insert(changeset) do
+        {:ok, answer} ->
+          IO.puts "Inserted"
+        {:error, changeset} ->
+          IO.inspect changeset
+      end
+    end
+ ################################################################
+
+
 
   def check_answer(user_id, question_id) do
     answers_query = from a in Answer, where: a.user_id == ^user_id and a.question_id == ^question_id
-    answers = Repo.all(answers_query) |> Enum.count |> IO.inspect
+    answers = Repo.all(answers_query) |> Enum.count
     case answers do
       0 ->
         "Not Answered"
@@ -75,23 +134,9 @@ defmodule FantaWeb.MissionController do
     end
   end
 
-  def createquestion(%Plug.Conn{assigns: %{current_user: user}} = conn, %{"question" => question, "mission_id" => mission_id}) do
-    options = question["options"] |> IO.inspect
-    title = question["title"] |> IO.inspect
-    type = question["type"] |> IO.inspect
-    params = %{"options" => options, "title" => title, "type" => type, "mission_id" => mission_id}
-    changeset = Question.changeset(%Question{}, params)
-    case Repo.insert(changeset) do
-      {:ok, question} ->
-        conn
-        |> put_flash(:info, "Question created successfully.")
-        |> redirect(to: user_mission_mission_path(conn, :new_question, user.id, mission_id))
-      {:error, changeset} ->
-        IO.inspect changeset
-        render(conn, "new_question.html", user_id: user.id, mission: mission_id, changeset: changeset)
-    end
-  end
 
+ ##############################################################
+ # Creates the Mission
   def create(%Plug.Conn{assigns: %{current_user: user}} = conn, %{"mission" => mission_params}) do
     params = Map.put(mission_params, "user_id", user.id)
     changeset = Mission.changeset(%Mission{}, params)
@@ -105,37 +150,8 @@ defmodule FantaWeb.MissionController do
         render(conn, "new.html", changeset: changeset, user_id: user.id)
     end
   end
+  #################################################################
 
-  def answer_mission(%Plug.Conn{assigns: %{current_user: user}} = conn, %{"mission_id" => mission_id}) do
-    mission = Repo.get!(Mission, mission_id) |> Repo.preload(:questions)
-    render(conn, "answer_mission.html", user_id: user.id, mission_id: mission_id, mission: mission)
-  end
-
-  def answer_all(%Plug.Conn{assigns: %{current_user: user}} = conn, params) do
-    mission_id = params["mission_id"]
-    answers = Map.keys(params)
-      |> Enum.reject(fn(a) -> String.starts_with?(a, "b") !== true end)
-      |> Enum.map(fn(a) -> get_atom_and_value(a, params, params["mission_id"], params["user_id"]) end)
-      Enum.map(answers, fn(a) -> answer_question_single(a) end)
-    conn |> redirect(to: user_mission_path(conn, :show, user.id, mission_id))
-  end
-
-  defp get_atom_and_value(atom, list, mission_id, user_id) do
-    question_id = String.split(atom, "_") |> List.last |> IO.inspect
-      body = [list[atom]] |> List.flatten
-    %{"question_id" => question_id, "body" => body, "mission_id" => mission_id, "user_id" => user_id}
-  end
-
-  def answer_question_single(params) do
-    changeset = Answer.changeset(%Answer{}, params)
-    case Repo.insert(changeset) do
-      {:ok, answer} ->
-        IO.puts "Inserted"
-        IO.inspect answer
-      {:error, changeset} ->
-        IO.inspect changeset
-    end
-  end
 
   def show(%Plug.Conn{assigns: %{current_user: user}} = conn, %{"id" => id}) do
     mission = Repo.get!(Mission, id) |> Repo.preload(:questions)
@@ -151,6 +167,7 @@ defmodule FantaWeb.MissionController do
     |> Enum.reject(fn(a) -> Enum.any?(a.body, fn(b) -> b == search end) !== true end)
   end
 
+######################## Search Function
   def search(%Plug.Conn{assigns: %{current_user: user}} = conn, params) do
     query = params["query"]
     mission_id = params["mission_id"]
@@ -163,6 +180,8 @@ defmodule FantaWeb.MissionController do
       end
     render(conn, "search_answers.html", user_id: user.id, mission_id: mission_id, results: results)
   end
+
+  ######################################
 
   def edit(%Plug.Conn{assigns: %{current_user: user}} = conn, %{"id" => id}) do
     mission = Repo.get!(Mission, id)

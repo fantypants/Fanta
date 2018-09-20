@@ -15,6 +15,7 @@
 - Written tests for both inside out and outside in for the models and the controllers, due to time I couldn't write tests, but usually for production environment I'd start with tests first and then make the controller functions pass.
 - Example test methods I'd have introduced exist under the controller tests
 - Created guards for only being able to answer the question once (as it stands users can answer multiple times)
+- Validation on the Answer form aside from model validation would be much better if implemented strict (currently you can submit empty answer)
 
 ## How-To
 - I created a short 3 min video to demonstrate:

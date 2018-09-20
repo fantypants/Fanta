@@ -16,6 +16,28 @@ defmodule FantaWeb.MissionController do
     render(conn, "new.html", changeset: changeset, user_id: user.id)
   end
 
+  def new_question(%Plug.Conn{assigns: %{current_user: user}} = conn, %{"mission_id" => mission_id}) do
+    changeset = Question.changeset(%Question{})
+    render(conn, "new_question.html", changeset: changeset, mission: mission_id)
+  end
+
+  def createquestion(%Plug.Conn{assigns: %{current_user: user}} = conn, %{"question" => question, "mission_id" => mission_id}) do
+    options = question["options"] |> IO.inspect
+    title = question["title"] |> IO.inspect
+    type = question["type"] |> IO.inspect
+    params = %{"options" => options, "title" => title, "type" => type, "mission_id" => mission_id}
+    changeset = Question.changeset(%Question{}, params)
+    case Repo.insert(changeset) do
+      {:ok, question} ->
+        conn
+        |> put_flash(:info, "Question created successfully.")
+        |> redirect(to: user_mission_mission_path(conn, :new_question, user.id, mission_id))
+      {:error, changeset} ->
+        IO.inspect changeset
+        render(conn, "new_question.html", user_id: user.id, mission: mission_id, changeset: changeset)
+    end
+  end
+
   def create(%Plug.Conn{assigns: %{current_user: user}} = conn, %{"mission" => mission_params}) do
     params = Map.put(mission_params, "user_id", user.id)
     changeset = Mission.changeset(%Mission{}, params)

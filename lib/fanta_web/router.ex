@@ -17,6 +17,8 @@ defmodule FantaWeb.Router do
     resources "/users", UserController
     resources "/users", UserController do
       resources "/missions", MissionController do
+        get "new_question", MissionController, :new_question
+        post "createquestion", MissionController, :createquestion
       end
     end
     resources "/sessions", SessionController, only: [:new, :create, :delete]

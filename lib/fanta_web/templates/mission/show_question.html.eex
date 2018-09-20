@@ -1,0 +1,39 @@
+<h2>Show Question</h2>
+
+<ul>
+<table class="table">
+  <thead>
+    <th> Title </th>
+    <th> Type </th>
+
+  </thead>
+  <tbody>
+    <tr>
+      <td><%= @question.title %></td>
+      <td><%= @question.type %></td>
+      
+    </tr>
+</tbody>
+</table>
+</ul>
+
+
+<%= if @question.type == "Single" do %>
+<%= render "answer_form_multiple.html", changeset: @changeset, values: @question.options,
+                        action: user_mission_mission_path(@conn, :answer_question, @user_id, @mission, @question.id) %>
+<% end %>
+
+<%= if @question.type == "Multiple Choice" do %>
+<%= render "answer_form_multiple.html", changeset: @changeset, values: @question.options,
+                        action: user_mission_mission_path(@conn, :answer_question, @user_id, @mission, @question.id) %>
+<% end %>
+
+<%= if @question.type == "Rating" do %>
+<%= render "answer_form_radio.html", changeset: @changeset,
+                        action: user_mission_mission_path(@conn, :answer_question, @user_id, @mission, @question.id) %>
+<% end %>
+
+<%= if @question.type == "Paragraph" do %>
+<%= render "answer_form_paragraph.html", changeset: @changeset,
+                        action: user_mission_mission_path(@conn, :answer_question, @user_id, @mission, @question.id) %>
+<% end %>

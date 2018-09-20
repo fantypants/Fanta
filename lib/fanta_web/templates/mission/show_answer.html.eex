@@ -1,0 +1,25 @@
+<h2>Show Question</h2>
+
+<ul>
+<table class="table">
+  <thead>
+    <th> Title </th>
+    <th> Type </th>
+  </thead>
+  <tbody>
+    <tr>
+      <td><%= @question.title %></td>
+      <td><%= @question.type %></td>
+      <%= for ans <- @question.answers do %>
+      <tr>
+        <%= for a <- ans.body do %>
+        <tr>
+      <td>Answer: <%= a %></td>
+    </tr>
+        <% end %>
+    </tr>
+      <% end %>
+    </tr>
+</tbody>
+</table>
+</ul>

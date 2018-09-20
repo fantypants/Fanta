@@ -17,6 +17,10 @@ defmodule FantaWeb.Router do
     resources "/users", UserController
     resources "/users", UserController do
       resources "/missions", MissionController do
+        get "search", MissionController, :search
+        post "search", MissionController, :search
+        get "answer_mission", MissionController, :answer_mission
+        post "answer_all", MissionController, :answer_all
         get "new_question", MissionController, :new_question
         post "createquestion", MissionController, :createquestion
         get ":question_id/show_question", MissionController, :show_question

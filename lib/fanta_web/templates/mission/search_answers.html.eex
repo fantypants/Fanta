@@ -1,0 +1,6 @@
+<h2>Search Mission for Answers</h2>
+
+<%= form_for @conn, user_mission_mission_path(@conn, :search, @user_id, @mission_id), [name: :search], fn f -> %>
+  <%= text_input f, :query %>
+  <%= submit "Search" %>
+<% end %>

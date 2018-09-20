@@ -43,8 +43,6 @@ function enable_disable(){
     break;
     default:
     document.getElementById('question_options_container').style.display = "none";
-    document.getElementById('add_button').style.display = "none";
-    document.getElementById('remove_button').style.display = "none";
   };
 };
 </script>

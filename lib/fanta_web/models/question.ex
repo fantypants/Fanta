@@ -8,7 +8,7 @@ defmodule FantaWeb.Models.Question do
     field :type, :string
     field :options, {:array, :string}
     belongs_to :mission, FantaWeb.Models.Mission, foreign_key: :mission_id
-
+    has_many :answers, FantaWeb.Models.Answer
     timestamps()
   end
 
@@ -18,6 +18,7 @@ defmodule FantaWeb.Models.Question do
   def changeset(struct, params \\ %{}) do
     struct
     |> cast(params, [:title, :type, :options, :mission_id])
+    |> cast_assoc(:answers)
     |> validate_required([:title, :type, :options, :mission_id])
   end
 end
